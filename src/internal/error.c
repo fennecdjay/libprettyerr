@@ -22,7 +22,8 @@
 #include <unistd.h>
 #endif
 
-#define _PRINTF(fmt, ...) fprintf(stream, fmt, __VA_ARGS__);
+#define _PRINTF(...) fprintf(printer->stream, __VA_ARGS__)
+#define _PUTCHR(...) fputc(__VA_ARGS__, printer->stream)
 
 static const char* _errtype_lookup[5] = {
     "error",
@@ -32,13 +33,18 @@ static const char* _errtype_lookup[5] = {
     "ok"
 };
 
-void perr_printer_init(struct libprettyerr_printer* printer,
+void perr_printer_init(perr_printer_t* printer, FILE* stream,
                        const char* source, bool utf8, bool basic_style) {
     printer->source = source;
+    printer->stream = stream;
 
     // Enables ANSI colors only in Unix terminals. False by default on Windows.
     #ifdef __unix__
-    printer->color = isatty(FILENO_STDERR);
+    const int fd = fileno(stream);
+    // if (fd < 0) {
+    //     perror("fileno");
+    // }
+    printer->color = isatty(fd);
     #else
     printer->color = false;
     #endif
@@ -47,8 +53,8 @@ void perr_printer_init(struct libprettyerr_printer* printer,
     printer->basic_style = basic_style;
 }
 
-static inline void perr_print_basic_style(FILE* stream, perr_printer_t* printer,
-                                          perr_t* err) {
+static inline void perr_print_basic_style(const perr_printer_t* printer,
+                                          const perr_t* err) {
     // Normal errors:
     //
     // $filename:$line:$col: $type: $msg
@@ -57,31 +63,66 @@ static inline void perr_print_basic_style(FILE* stream, perr_printer_t* printer,
 
     // Here we scan backwards until we reach the start of the line (or the
     // start of the source code). This allows us to retrieve the line that has
-    // the error,
+    // the error.
     size_t idx_cpy = err->error_position.index;
     while (idx_cpy > 0 && printer->source[idx_cpy - 1] != '\n') {
         idx_cpy--;
     }
-    const char* const error_line = printer->source + idx_cpy;
+    const char* error_line = (printer->source + idx_cpy);
+    error_line += (printer->source[idx_cpy] == '\n') ? 1 : 0;
 
-    // The column is how far the error's index is from the start-of-line's index
+    // The column is how far the error's index is from the start-of-line's
+    // index.
     const size_t column = err->error_position.index - idx_cpy;
 
     // Here we print the first row of the error message which provides general
     // information such as filename, line, column, error type and a message.
     _PRINTF("%s:%zu:%zu: %s: %s\n", err->filename, err->primary.line, column,
             _errtype_lookup[err->type], err->main);
+
+    // Print the line number and a | to denote the start of the line. When
+    // colors are added, this segment should be dimmed.
+    _PRINTF("%5zu | ", err->primary.line);
+
+    // Print the line.
+    while (*error_line && *error_line != '\n') {
+        _PUTCHR(*error_line);
+        error_line++;
+    }
+    _PUTCHR('\n');
+
+    // Print a series of '^' showing where the error occurs.
+    _PRINTF("      | %*s", column, "");
+    for (size_t i = 0; i < err->error_position.length; i++) {
+        // Should be red when color is added.
+        _PUTCHR('^');
+    }
+    _PUTCHR('\n');
+
+    // Adds a subsidiary error note, if applicable
+    if (err->sub) {
+        _PRINTF("      | %*s|\n", column, "");
+        _PRINTF("      | %*s%s", column, "", err->sub);
+        _PUTCHR('\n');
+    }
+
+    // Displays a fix, if applicable.
+    if (err->fix) {
+        _PRINTF("%s\n", err->fix);
+    }
 }
 
-static inline void perr_print_complex(FILE* stream, perr_printer_t* printer,
-                                      perr_t* err) {
+/*
+static inline void perr_print_complex(const perr_printer_t* printer,
+                                      const perr_t* err) {
     // IDK COPY BRENDANZAB (DONT)
 }
+*/
 
-void perr_print_error(FILE* stream, perr_printer_t* printer, perr_t* err) {
+void perr_print_error(const perr_printer_t* printer, const perr_t* err) {
     if (printer->basic_style) {
-        perr_print_basic_style(stream, printer, err);
+        perr_print_basic_style(printer, err);
     } else {
-
+        // perr_print_complex(printer, err);
     }
 }

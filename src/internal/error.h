@@ -70,17 +70,18 @@ struct libprettyerr_error {
 
 struct libprettyerr_printer {
     const char* source;
+    FILE* stream;
     bool color;
     bool utf8;
     bool basic_style;
 };
 
 // Initializes a printer
-void perr_printer_init(struct libprettyerr_printer* printer,
+void perr_printer_init(struct libprettyerr_printer* printer, FILE* stream,
                        const char* source, bool utf8, bool basic_style);
 
 // Uses the printer to display the provided error in
-void perr_print_error(FILE* stream, struct libprettyerr_printer* printer,
-                      struct libprettyerr_error* err);
+void perr_print_error(const struct libprettyerr_printer* printer,
+                      const  struct libprettyerr_error* err);
 
 #endif /* _LIBPRETTYERR_ERROR_H */
