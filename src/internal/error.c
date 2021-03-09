@@ -92,7 +92,7 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     _PUTCHR('\n');
 
     // Print a series of '^' showing where the error occurs.
-    _PRINTF("      | %*s", column, "");
+    _PRINTF("      | %*s", (int)column, "");
     for (size_t i = 0; i < err->error_position.length; i++) {
         // Should be red when color is added.
         _PUTCHR('^');
@@ -101,8 +101,8 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
 
     // Adds a subsidiary error note, if applicable
     if (err->sub) {
-        _PRINTF("      | %*s|\n", column, "");
-        _PRINTF("      | %*s%s", column, "", err->sub);
+        _PRINTF("      | %*s|\n", (int)column, "");
+        _PRINTF("      | %*s%s", (int)column, "", err->sub);
         _PUTCHR('\n');
     }
 
