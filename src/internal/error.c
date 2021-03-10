@@ -26,17 +26,18 @@
 #define _PUTCHR(...) fputc(__VA_ARGS__, printer->stream)
 
 // attributes
-#define CLEAR "\033[0m"
-#define BOLD  "\033[1m"
+#define CLEAR "\e[0m"
+#define BOLD  "\e[1m"
 
 // colors
-#define RED    "\033[31m"
-#define YELLOW "\033[33m"
-#define GREEN  "\033[32m"
+#define RED     "\e[31m"
+#define YELLOW  "\e[33m"
+#define GREEN   "\e[32m"
+#define MAGENTA "\e[35m"
 
 static const char* _color_errtype_lookup[5] = {
     RED BOLD,
-    RED,
+    MAGENTA BOLD,
     BOLD,
     YELLOW BOLD,
     GREEN BOLD
@@ -58,8 +59,8 @@ static const char* _errtype_lookup[5] = {
 static void perr_theme_init(perr_printer_t* printer) {
     if(printer->color) {
         printer->theme.color_lookup = _color_errtype_lookup;
-        printer->theme.faint = "\033[2m";
-        printer->theme.reset = "\033[0m";
+        printer->theme.faint = "\e[2m";
+        printer->theme.reset = "\e[0m";
     } else {
         printer->theme.color_lookup = _bw_errtype_lookup;
         printer->theme.faint = "";
@@ -149,8 +150,7 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
         perr_print_column(printer, color, column);
         _PRINTF("%s%s%s%s\n", theme.faint, color, theme.box_lookup[1], theme.reset);
         perr_print_column(printer, color, column);
-        _PRINTF("%s", err->sub);
-        _PUTCHR('\n');
+        _PRINTF("%s\n", err->sub);
     }
 
     // Displays a fix, if applicable.
