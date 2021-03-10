@@ -31,6 +31,7 @@
 #define BOLD  "\e[1m"
 
 // colors
+#define WHITE   "\e[37m"
 #define RED     "\e[31m"
 #define YELLOW  "\e[33m"
 #define GREEN   "\e[32m"
@@ -39,7 +40,7 @@
 static const char* _color_errtype_lookup[5] = {
     RED BOLD,
     MAGENTA BOLD,
-    BOLD,
+    WHITE BOLD,
     YELLOW BOLD,
     GREEN BOLD
 };
