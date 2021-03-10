@@ -93,6 +93,11 @@ void perr_printer_init(perr_printer_t* printer, FILE* stream,
     perr_theme_init(printer);
 }
 
+static void perr_print_column(const perr_printer_t* printer, const char *color, const int column) {
+    _PRINTF("      %s%s%s %*s", color, printer->theme.box_lookup[0],
+        printer->theme.reset, (int)column, "");
+}
+
 static inline void perr_print_basic_style(const perr_printer_t* printer,
                                           const perr_t* err) {
     // Normal errors:
@@ -115,15 +120,14 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     // index.
     const size_t column = err->error_position.index - idx_cpy;
     const perr_theme_t theme = printer->theme;
-    const char *color = _color_errtype_lookup[err->type];
+    const char *color = theme.color_lookup[err->type];
     // Here we print the first row of the error message which provides general
     // information such as filename, line, column, error type and a message.
-    _PRINTF("%s%s%s:%zu:%zu: %s%s%s: %s\n", _color_errtype_lookup[PERR_INFO], err->filename, theme.reset, err->primary.line, column,
+    _PRINTF("%s%s%s:%zu:%zu: %s%s%s: %s\n", theme.color_lookup[PERR_INFO], err->filename, theme.reset, err->primary.line, column,
             color, _errtype_lookup[err->type], theme.reset, err->main);
 
-    // Print the line number and a | to denote the start of the line. When
-    // colors are added, this segment should be dimmed.
-    _PRINTF("%5zu %s%s%s ", err->primary.line, color, theme.box_lookup[0], theme.reset);
+    // Print the line number and a | to denote the start of the line.
+    _PRINTF("%s%5zu%s %s%s%s ", theme.faint, err->primary.line, theme.reset, color, theme.box_lookup[0], theme.reset);
 
     // Print the line.
     while (*error_line && *error_line != '\n') {
@@ -133,7 +137,7 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     _PUTCHR('\n');
 
     // Print a series of '^' showing where the error occurs.
-    _PRINTF("      %s%s%s %*s", color, theme.box_lookup[0], theme.reset, (int)column, "");
+    perr_print_column(printer, color, column);
     _PRINTF("%s%s%s", color, theme.faint, theme.box_lookup[2]);
     for (size_t i = 1; i < err->error_position.length; i++) {
         _PRINTF(theme.box_lookup[3]);
@@ -142,9 +146,10 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
 
     // Adds a subsidiary error note, if applicable
     if (err->sub) {
-        _PRINTF("      %s%s%s %*s%s%s%s%s\n", color, theme.box_lookup[0], theme.reset,
-                (int)column, "", theme.faint, color, theme.box_lookup[1], theme.reset);
-        _PRINTF("      %s%s%s %*s%s", color, theme.box_lookup[0], theme.reset, (int)column, "", err->sub);
+        perr_print_column(printer, color, column);
+        _PRINTF("%s%s%s%s\n", theme.faint, color, theme.box_lookup[1], theme.reset);
+        perr_print_column(printer, color, column);
+        _PRINTF("%s", err->sub);
         _PUTCHR('\n');
     }
 
