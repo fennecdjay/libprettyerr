@@ -34,6 +34,7 @@ int main(int argc NUSED, const char* argv[] NUSED) {
             "Unknown identifier `{+/}retrn{0}`" /* main error message */,
             "{_R}Error{0} right here" /* example subsidiary error message */,
             "Did you mean `{+/}return{0}`?" /* fix message */,
+            42, /* error code */
             "faux.c" /* filename */
         );
 
@@ -45,7 +46,7 @@ int main(int argc NUSED, const char* argv[] NUSED) {
     perr_print_error(&printer, &err);
     err.type = PERR_NOTE;
     perr_print_error(&printer, &err);
-    err.type = PERR_OK;
+    err.type = PERR_SUCCESS;
     perr_print_error(&printer, &err);
 
     return 0;

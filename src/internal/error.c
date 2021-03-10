@@ -37,7 +37,7 @@ static const char* _errtype_lookup[5] = {
     "warning",
     "info",
     "note",
-    "ok"
+    "success"
 };
 
 void perr_printer_init(perr_printer_t* printer, FILE* stream,
@@ -109,8 +109,11 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
 
     // Here we print the first row of the error message which provides general
     // information such as filename, line, column, error type and a message.
-    _PRINTF("{+W}%s{0}:%zu:%zu: %s%s{0}: ", err->filename, err->primary.line, column,
+    _PRINTF("{+W}%s{0}:%zu:%zu: %s%s", err->filename, err->primary.line, column,
             color, _errtype_lookup[err->type]);
+    if(err->error_code)
+        _PRINTF("[%c04%d]", toupper(_errtype_lookup[err->type][0]), err->error_code);
+    _PRINTF("{0}: ");
     _PRINTF(err->main);
     _PUTCHR('\n');
 

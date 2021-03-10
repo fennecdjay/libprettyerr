@@ -44,7 +44,7 @@ enum libprettyerr_errtype {
     PERR_WARNING, // red
     PERR_INFO,    // bold white
     PERR_NOTE,    // bold yellow
-    PERR_OK       // bold green
+    PERR_SUCCESS  // bold green
 };
 
 struct libprettyerr_error {
@@ -57,14 +57,15 @@ struct libprettyerr_error {
     const char* main;
     const char* sub;
     const char* fix;
+    short error_code;
 
     const char* filename;
 };
 
-#define PERR_Error(type_, primary_, error_position_, secondary_, main_, sub_, fix_, filename_) \
+#define PERR_Error(type_, primary_, error_position_, secondary_, main_, sub_, fix_, error_code_, filename_) \
     (struct libprettyerr_error){ \
         .type = type_, .primary = primary_, .error_position = error_position_, \
-        .secondary = secondary_, .main = main_, .sub = sub_, .fix = fix_, \
+        .secondary = secondary_, .main = main_, .sub = sub_, .fix = fix_, .error_code = error_code_, \
         .filename = filename_ \
     }
 
