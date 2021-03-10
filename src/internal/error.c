@@ -18,7 +18,8 @@
 // #include <termcolor/print.h>
 
 // Used to declare isatty if on Unix
-#ifdef __unix__
+#if defined(__unix__) || defined(__unix) || \
+    (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
 #endif
 
@@ -79,7 +80,8 @@ void perr_printer_init(perr_printer_t* printer, FILE* stream,
     printer->stream = stream;
 
     // Enables ANSI colors only in Unix terminals. False by default on Windows.
-    #ifdef __unix__
+    #if defined(__unix__) || defined(__unix) || \
+        (defined(__APPLE__) && defined(__MACH__))
     const int fd = fileno(stream);
     // if (fd < 0) {
     //     perror("fileno");
