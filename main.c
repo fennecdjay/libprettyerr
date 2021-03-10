@@ -31,9 +31,9 @@ int main(int argc NUSED, const char* argv[] NUSED) {
             PERR_Str(2, src + 15) /* location of error */,
             PERR_Pos(15, 5) /* occurs at src[15] through src[19] */,
             PERR_Str_None() /* no other line referenced */,
-            "Unknown identifier `" BOLD("retrn")"`" /* main error message */,
-            "Error right here" /* example subsidiary error message */,
-            "Did you mean `" BOLD("return") "`?" /* fix message */,
+            "Unknown identifier `{+/}retrn{0}`" /* main error message */,
+            "{_R}Error{0} right here" /* example subsidiary error message */,
+            "Did you mean `{+/}return{0}`?" /* fix message */,
             "faux.c" /* filename */
         );
 

@@ -15,7 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "prettyerr.h"
-// #include <termcolor/print.h>
+#include <termcolor.h>
 
 // Used to declare isatty if on Unix
 #if defined(__unix__) || defined(__unix) || \
@@ -23,7 +23,7 @@
 #include <unistd.h>
 #endif
 
-#define _PRINTF(...) fprintf(printer->stream, __VA_ARGS__)
+#define _PRINTF(...) tcol_fprintf(printer->stream, __VA_ARGS__)
 #define _PUTCHR(...) fputc(__VA_ARGS__, printer->stream)
 
 // attributes
@@ -61,12 +61,8 @@ static const char* _errtype_lookup[5] = {
 static void perr_theme_init(perr_printer_t* printer) {
     if(printer->color) {
         printer->theme.color_lookup = _color_errtype_lookup;
-        printer->theme.faint = "\e[2m";
-        printer->theme.reset = "\e[0m";
     } else {
         printer->theme.color_lookup = _bw_errtype_lookup;
-        printer->theme.faint = "";
-        printer->theme.reset = "";
     }
     if(printer->utf8) {
         printer->theme.box_lookup = _utf8_box_lookup;
@@ -98,8 +94,8 @@ void perr_printer_init(perr_printer_t* printer, FILE* stream,
 }
 
 static void perr_print_column(const perr_printer_t* printer, const char *color, const int column) {
-    _PRINTF("      %s%s%s %*s", color, printer->theme.box_lookup[0],
-        printer->theme.reset, (int)column, "");
+    _PRINTF("      %s%s{0} %*s", color, printer->theme.box_lookup[0],
+        (int)column, "");
 }
 
 static inline void perr_print_basic_style(const perr_printer_t* printer,
@@ -125,40 +121,54 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     const size_t column = err->error_position.index - idx_cpy;
     const perr_theme_t theme = printer->theme;
     const char *color = theme.color_lookup[err->type];
+//    const char base_color[16];
+//    sprintf(base_color, "{+%s}"
+//    char color[16];
+
+//int tcol_color_parse(char* dst, size_t dstn, char color[16], size_t k,
+//                     size_t* len)
     // Here we print the first row of the error message which provides general
     // information such as filename, line, column, error type and a message.
-    _PRINTF("%s%s%s:%zu:%zu: %s%s%s: %s\n", theme.color_lookup[PERR_INFO], err->filename, theme.reset, err->primary.line, column,
-            color, _errtype_lookup[err->type], theme.reset, err->main);
+    _PRINTF("{+W}%s{0}:%zu:%zu: %s%s{0}: ", err->filename, err->primary.line, column,
+            color, _errtype_lookup[err->type]);
+    _PRINTF(err->main);
+    _PUTCHR('\n');
 
     // Print the line number and a | to denote the start of the line.
-    _PRINTF("%s%5zu%s %s%s%s ", theme.faint, err->primary.line, theme.reset, color, theme.box_lookup[0], theme.reset);
+    _PRINTF("{-}%5zu{0} %s%s{0} ", err->primary.line, color, theme.box_lookup[0]);
 
     // Print the line.
-    while (*error_line && *error_line != '\n') {
-        _PUTCHR(*error_line);
-        error_line++;
-    }
-    _PUTCHR('\n');
+    char* nl = strstr(error_line, "\n");
+    ptrdiff_t len = nl ? nl - error_line - 1: strlen(error_line);
+    _PRINTF("%.*s\n", len, error_line);
+//    while (*error_line && *error_line != '\n') {
+//        _PUTCHR(*error_line);
+//        error_line++;
+//    }
+//    _PUTCHR('\n');
 
     // Print a series of '^' showing where the error occurs.
     perr_print_column(printer, color, column);
-    _PRINTF("%s%s%s", color, theme.faint, theme.box_lookup[2]);
+    _PRINTF("%s{-}%s", color, theme.box_lookup[2]);
     for (size_t i = 1; i < err->error_position.length; i++) {
         _PRINTF(theme.box_lookup[3]);
     }
-    _PRINTF("%s\n", theme.reset);
+    _PRINTF("{0}\n");
 
     // Adds a subsidiary error note, if applicable
     if (err->sub) {
         perr_print_column(printer, color, column);
-        _PRINTF("%s%s%s%s\n", theme.faint, color, theme.box_lookup[1], theme.reset);
+        _PRINTF("{-}%s%s{0}\n", color, theme.box_lookup[1]);
         perr_print_column(printer, color, column);
-        _PRINTF("%s\n", err->sub);
+        _PRINTF(err->sub);
+        _PUTCHR('\n');
     }
 
     // Displays a fix, if applicable.
     if (err->fix) {
-        _PRINTF("%s%s%s\n", theme.faint, err->fix, theme.reset);
+        _PRINTF("{-}");
+        _PRINTF(err->fix);
+        _PRINTF("{0}\n");
     }
 }
 

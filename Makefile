@@ -1,3 +1,9 @@
+# should be in config.mk
+TERMCOLOR_CFLAGS  ?= -I../libtermcolor/src
+
+# force usage of static lib
+TERMCOLOR_LDFLAGS ?= ../libtermcolor/libtermcolor.a
+
 CFLAGS   += -Isrc -fPIC
 WARNINGS += -Wall -Wextra
 
@@ -13,7 +19,8 @@ AR = ar
 AR_OPT = rcs $@ $^
 endif
 
-CFLAGS += ${WARNINGS}
+CFLAGS += ${WARNINGS} ${TERMCOLOR_CFLAGS}
+LDFLAGS += ${TERMCOLOR_LDFLAGS}
 
 all: dynamic demo
 
@@ -30,7 +37,7 @@ ${PRG}.so: ${OBJ}
 	${CC} -shared $< -o $@
 
 demo: ${PRG}.a
-	${CC} ${CFLAGS} main.c $< -o demo
+	${CC} main.c ${CFLAGS} $< -o demo ${LDFLAGS}
 
 .c.o:
 	${CC} ${CFLAGS} $< -c -o ${<:.c=.o}

@@ -50,8 +50,6 @@ enum libprettyerr_errtype {
 typedef struct libprettyerr_theme {
   const char** color_lookup;
   const char** box_lookup;
-  char *faint;
-  char *reset;
 } perr_theme_t;
 
 struct libprettyerr_error {
