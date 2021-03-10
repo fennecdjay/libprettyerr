@@ -1,4 +1,7 @@
-
+*.o
+*.so
+*.a
+demo
 .DS_Store
 debug/main.dSYM/Contents/Info.plist
 debug/main.dSYM/Contents/Resources/DWARF/main

@@ -30,7 +30,7 @@ ${PRG}.so: ${OBJ}
 	${CC} -shared $< -o $@
 
 demo: ${PRG}.a
-	${CC} ${CFLAGS} main.c $< -o main
+	${CC} ${CFLAGS} main.c $< -o demo
 
 .c.o:
 	${CC} ${CFLAGS} $< -c -o ${<:.c=.o}
