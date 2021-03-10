@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#include "prettyerr.h"
+#include <string.h>
 #include <termcolor.h>
+#include "prettyerr.h"
 
 // Used to declare isatty if on Unix
 #if defined(__unix__) || defined(__unix) || \
@@ -26,26 +27,7 @@
 #define _PRINTF(...) tcol_fprintf(printer->stream, __VA_ARGS__)
 #define _PUTCHR(...) fputc(__VA_ARGS__, printer->stream)
 
-// attributes
-#define CLEAR "\e[0m"
-#define BOLD  "\e[1m"
-
-// colors
-#define WHITE   "\e[37m"
-#define RED     "\e[31m"
-#define YELLOW  "\e[33m"
-#define GREEN   "\e[32m"
-#define MAGENTA "\e[35m"
-
-static const char* _color_errtype_lookup[5] = {
-    RED BOLD,
-    MAGENTA BOLD,
-    WHITE BOLD,
-    YELLOW BOLD,
-    GREEN BOLD
-};
-
-static char const* _bw_errtype_lookup[5] = { "", "", "", "", "" };
+static char const _tcol_lookup[5] = { 'R', 'M', 'W', 'Y', 'G' };
 
 static char const* _ascii_box_lookup[4] = { "|", "|", "+", "-" };
 static char const* _utf8_box_lookup[4] = { "┃", "╵", "┌", "─" };
@@ -57,19 +39,6 @@ static const char* _errtype_lookup[5] = {
     "note",
     "ok"
 };
-
-static void perr_theme_init(perr_printer_t* printer) {
-    if(printer->color) {
-        printer->theme.color_lookup = _color_errtype_lookup;
-    } else {
-        printer->theme.color_lookup = _bw_errtype_lookup;
-    }
-    if(printer->utf8) {
-        printer->theme.box_lookup = _utf8_box_lookup;
-    } else {
-        printer->theme.box_lookup = _ascii_box_lookup;
-    }
-}
 
 void perr_printer_init(perr_printer_t* printer, FILE* stream,
                        const char* source, bool utf8, bool basic_style) {
@@ -88,14 +57,29 @@ void perr_printer_init(perr_printer_t* printer, FILE* stream,
     printer->color = false;
     #endif
 
-    printer->utf8 = utf8;
+    if((printer->utf8 = utf8)) {
+        printer->box_lookup = _utf8_box_lookup;
+    } else {
+        printer->box_lookup = _ascii_box_lookup;
+    }
     printer->basic_style = basic_style;
-    perr_theme_init(printer);
 }
 
 static void perr_print_column(const perr_printer_t* printer, const char *color, const int column) {
-    _PRINTF("      %s%s{0} %*s", color, printer->theme.box_lookup[0],
+    _PRINTF("      %s%s{0} %*s", color, printer->box_lookup[0],
         (int)column, "");
+}
+
+static void lookup_color(char *color, enum libprettyerr_errtype type) {
+    char _color[3];
+    sprintf(_color, "+%c", _tcol_lookup[type]);
+    size_t len;
+    int status = tcol_color_parse(color, 16, _color, sizeof(_color) -1, &len);
+    if (status != TermColorErrorNone) {
+       color[0] = 0;
+      // error
+    } else
+    color[len] = 0;
 }
 
 static inline void perr_print_basic_style(const perr_printer_t* printer,
@@ -119,14 +103,10 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     // The column is how far the error's index is from the start-of-line's
     // index.
     const size_t column = err->error_position.index - idx_cpy;
-    const perr_theme_t theme = printer->theme;
-    const char *color = theme.color_lookup[err->type];
-//    const char base_color[16];
-//    sprintf(base_color, "{+%s}"
-//    char color[16];
 
-//int tcol_color_parse(char* dst, size_t dstn, char color[16], size_t k,
-//                     size_t* len)
+    char color[17];
+    lookup_color(color, err->type);
+
     // Here we print the first row of the error message which provides general
     // information such as filename, line, column, error type and a message.
     _PRINTF("{+W}%s{0}:%zu:%zu: %s%s{0}: ", err->filename, err->primary.line, column,
@@ -135,30 +115,25 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     _PUTCHR('\n');
 
     // Print the line number and a | to denote the start of the line.
-    _PRINTF("{-}%5zu{0} %s%s{0} ", err->primary.line, color, theme.box_lookup[0]);
+    _PRINTF("{-}%5zu{0} %s%s{0} ", err->primary.line, color, printer->box_lookup[0]);
 
     // Print the line.
     char* nl = strstr(error_line, "\n");
-    ptrdiff_t len = nl ? nl - error_line - 1: strlen(error_line);
-    _PRINTF("%.*s\n", len, error_line);
-//    while (*error_line && *error_line != '\n') {
-//        _PUTCHR(*error_line);
-//        error_line++;
-//    }
-//    _PUTCHR('\n');
+    ptrdiff_t nl_index = nl ? nl - error_line - 1 : (ptrdiff_t)strlen(error_line);
+    _PRINTF("%.*s\n", nl_index, error_line);
 
     // Print a series of '^' showing where the error occurs.
     perr_print_column(printer, color, column);
-    _PRINTF("%s{-}%s", color, theme.box_lookup[2]);
+    _PRINTF("%s{-}%s", color, printer->box_lookup[2]);
     for (size_t i = 1; i < err->error_position.length; i++) {
-        _PRINTF(theme.box_lookup[3]);
+        _PRINTF(printer->box_lookup[3]);
     }
     _PRINTF("{0}\n");
 
     // Adds a subsidiary error note, if applicable
     if (err->sub) {
         perr_print_column(printer, color, column);
-        _PRINTF("{-}%s%s{0}\n", color, theme.box_lookup[1]);
+        _PRINTF("{-}%s%s{0}\n", color, printer->box_lookup[1]);
         perr_print_column(printer, color, column);
         _PRINTF(err->sub);
         _PUTCHR('\n');

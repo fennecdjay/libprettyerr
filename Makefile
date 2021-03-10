@@ -34,7 +34,7 @@ ${PRG}.a: ${OBJ}
 
 ${PRG}.so: ${OBJ}
 	echo ${SRC}
-	${CC} -shared $< -o $@
+	${CC} -shared $< -o $@ ${LDFLAGS}
 
 demo: ${PRG}.a
 	${CC} main.c ${CFLAGS} $< -o demo ${LDFLAGS}

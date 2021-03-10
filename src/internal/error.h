@@ -47,11 +47,6 @@ enum libprettyerr_errtype {
     PERR_OK       // bold green
 };
 
-typedef struct libprettyerr_theme {
-  const char** color_lookup;
-  const char** box_lookup;
-} perr_theme_t;
-
 struct libprettyerr_error {
     enum libprettyerr_errtype type;
 
@@ -76,7 +71,7 @@ struct libprettyerr_error {
 struct libprettyerr_printer {
     const char* source;
     FILE* stream;
-    struct libprettyerr_theme theme;
+    const char** box_lookup;
     bool color;
     bool utf8;
     bool basic_style;
