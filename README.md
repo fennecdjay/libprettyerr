@@ -1,6 +1,6 @@
 # libprettyerr
 
-Pretty error reporting library in C.  
+A C library for displaying informative, clean and readable errors  
 
 `libprettyerr` provides a simple api to nicely display error messages
 for your programming language.  
