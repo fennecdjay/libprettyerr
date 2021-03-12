@@ -5,7 +5,7 @@ Pretty error reporting library in C.
 `libprettyerr` provides a simple api to nicely display error messages
 for your programming language.  
 
-Backed by `[libtermcolor](https://github.com/euppal/libtermcolor)`,
+Backed by [libtermcolor](https://github.com/euppal/libtermcolor),
 it allows for displaying colored messages within the error.  
 
 ![](/img/demo.png)  
