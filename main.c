@@ -28,7 +28,7 @@ int main(int argc NUSED, const char* argv[] NUSED) {
         PERR_Error(
             PERR_ERROR /* error */,
             PERR_Str(3, src + 25) /* location of error */,
-            PERR_Pos(37, 9) /* occurs at src[37] through src[35] */,
+            PERR_Pos(37, 9) /* occurs at src[37] through src[45] */,
             "Invalid assignement" /* main error message */,
             "`{+/}owo{0}` is immutable" /* example explanatory error message */,
             "Take a reference to `{+/}owo{0}{-}` and mutate that 😄" /* fix message */,
