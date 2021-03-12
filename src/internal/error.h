@@ -47,12 +47,21 @@ enum libprettyerr_errtype {
     PERR_SUCCESS  // bold green
 };
 
+enum libprettyerr_boxtype {
+    PERR_BOX_THICK_VERT,
+    PERR_BOX_THIN_HIGH,
+    PERR_BOX_THIN_UL,
+    PERR_BOX_THIN_HORIZ,
+    PERR_BOX_THIN_BL,
+    PERR_BOX_THIN_VERT,
+    PERR_BOX_MAX,
+};
+
 struct libprettyerr_error {
     enum libprettyerr_errtype type;
 
     struct libprettyerr_str primary;
     struct libprettyerr_pos error_position;
-    struct libprettyerr_str secondary;
 
     const char* main;
     const char* sub;
@@ -62,28 +71,37 @@ struct libprettyerr_error {
     const char* filename;
 };
 
-#define PERR_Error(type_, primary_, error_position_, secondary_, main_, sub_, fix_, error_code_, filename_) \
+#define PERR_Error(type_, primary_, error_position_, main_, sub_, fix_, error_code_, filename_) \
     (struct libprettyerr_error){ \
         .type = type_, .primary = primary_, .error_position = error_position_, \
-        .secondary = secondary_, .main = main_, .sub = sub_, .fix = fix_, .error_code = error_code_, \
+        .main = main_, .sub = sub_, .fix = fix_, .error_code = error_code_, \
         .filename = filename_ \
     }
 
+#define PERR_Secondary(type_, primary_, error_position_, main_, filename_) \
+    (struct libprettyerr_error){ \
+        .type = type_, .primary = primary_, .error_position = error_position_, \
+        .main = main_, .filename = filename_ \
+    }
+
+struct libprettyerr_printer;
+typedef void (*libprettyerr_runner_t)(const struct libprettyerr_printer*, const  struct libprettyerr_error*);
 struct libprettyerr_printer {
     const char* source;
     FILE* stream;
     const char** box_lookup;
+    libprettyerr_runner_t runner;
     bool color;
     bool utf8;
-    bool basic_style;
 };
 
 // Initializes a printer
 void perr_printer_init(struct libprettyerr_printer* printer, FILE* stream,
-                       const char* source, bool utf8, bool basic_style);
+                       const char* source, bool utf8, libprettyerr_runner_t style);
 
 // Uses the printer to display the provided error in
 void perr_print_error(const struct libprettyerr_printer* printer,
                       const  struct libprettyerr_error* err);
 
 #endif /* _LIBPRETTYERR_ERROR_H */
+

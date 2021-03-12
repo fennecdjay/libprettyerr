@@ -10,8 +10,7 @@
 
 #define NUSED __attribute__((unused))
 
-#define BOLD(a) "\033[1m" a "\033[0m"
-const char src[] = "int main() {\n  retrn 42;\n}";
+const char src[] = "int main() {\n  42 => const int owo;\n 12 => owo;\n}";
 
 int main(int argc NUSED, const char* argv[] NUSED) {
     // Initialize the error printer
@@ -21,33 +20,35 @@ int main(int argc NUSED, const char* argv[] NUSED) {
         stderr /* our stream is standard error */,
         src /* source code */,
         true /* use utf8 */,
-        true /* basic style*/
+        perr_runner_basic_style /* basic style*/
     );
 
     // Create a faux error
-    /*const */perr_t err =
+    const perr_t err =
         PERR_Error(
             PERR_ERROR /* error */,
-            PERR_Str(2, src + 15) /* location of error */,
-            PERR_Pos(15, 5) /* occurs at src[15] through src[19] */,
-            PERR_Str_None() /* no other line referenced */,
-            "Unknown identifier `{+/}retrn{0}`" /* main error message */,
-            "{_R}Error{0} right here" /* example subsidiary error message */,
-            "Did you mean `{+/}return{0}`?" /* fix message */,
+            PERR_Str(3, src + 25) /* location of error */,
+            PERR_Pos(37, 9) /* occurs at src[15] through src[19] */,
+            "Invalid assignement" /* main error message */,
+            "`{+/}owo{0}` is immutable" /* example subsidiary error message */,
+            "Take a reference to `{+/}owo{0}{-}` and mutate that 😄" /* fix message */,
             42, /* error code */
+            "faux.c" /* filename */
+        );
+
+    const perr_t sec =
+        PERR_Secondary(
+            PERR_WARNING /* error */,
+            PERR_Str(2, src + 15) /* location of error */,
+            PERR_Pos(21, 13) /* occurs at src[15] through src[19] */,
+            "`{+/}owo{0}` declared `{+/}const{0}` here" /* main error message */,
             "faux.c" /* filename */
         );
 
     // Display our error
     perr_print_error(&printer, &err);
-    err.type = PERR_WARNING;
-    perr_print_error(&printer, &err);
-    err.type = PERR_INFO;
-    perr_print_error(&printer, &err);
-    err.type = PERR_NOTE;
-    perr_print_error(&printer, &err);
-    err.type = PERR_SUCCESS;
-    perr_print_error(&printer, &err);
+    printer.runner = perr_runner_secondary_style;
+    perr_print_error(&printer, &sec);
 
     return 0;
 }
