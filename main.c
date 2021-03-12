@@ -28,9 +28,9 @@ int main(int argc NUSED, const char* argv[] NUSED) {
         PERR_Error(
             PERR_ERROR /* error */,
             PERR_Str(3, src + 25) /* location of error */,
-            PERR_Pos(37, 9) /* occurs at src[15] through src[19] */,
+            PERR_Pos(37, 9) /* occurs at src[37] through src[35] */,
             "Invalid assignement" /* main error message */,
-            "`{+/}owo{0}` is immutable" /* example subsidiary error message */,
+            "`{+/}owo{0}` is immutable" /* example explanatory error message */,
             "Take a reference to `{+/}owo{0}{-}` and mutate that 😄" /* fix message */,
             42, /* error code */
             "faux.c" /* filename */
@@ -40,7 +40,7 @@ int main(int argc NUSED, const char* argv[] NUSED) {
         PERR_Secondary(
             PERR_WARNING /* error */,
             PERR_Str(2, src + 15) /* location of error */,
-            PERR_Pos(21, 13) /* occurs at src[15] through src[19] */,
+            PERR_Pos(21, 13) /* occurs at src[21] through src[33] */,
             "`{+/}owo{0}` declared `{+/}const{0}` here" /* main error message */,
             "faux.c" /* filename */
         );
