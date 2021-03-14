@@ -24,15 +24,14 @@ endif
 CFLAGS += ${WARNINGS} ${TERMCOLOR_CFLAGS}
 LDFLAGS += ${TERMCOLOR_LDFLAGS}
 
-all: dynamic demo
+all: static dynamic demo
 
 .PHONY:  static dynamic
-.PHONY:  static
 static:  ${PRG}.a
 dynamic: ${PRG}.so
 
 ${PRG}.a: ${OBJ}
-	$(info building $@)
+	$(info building $@ ${OBJ})
 	${AR} ${AR_OPT}
 
 ${PRG}.so: ${OBJ}
