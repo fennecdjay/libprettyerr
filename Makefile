@@ -9,7 +9,8 @@ CFLAGS   += -g
 CFLAGS   += -Isrc -fPIC
 WARNINGS += -Wall -Wextra
 
-SRC      := $(shell find src -type f -name '*.c')
+#SRC      := $(shell find src -type f -name '*.c')
+SRC      := src/internal/error.c
 OBJ      := ${SRC:.c=.o}
 PRG      := libprettyerr
 
