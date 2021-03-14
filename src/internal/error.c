@@ -25,7 +25,7 @@
 #include <unistd.h>
 #endif
 
-#define _PRINTF(...) tcol_fprintf(printer->stream, __VA_ARGS__)
+#define _PRINTF(...) do{if(tcol_fprintf(printer->stream, __VA_ARGS__) ==TermColorErrorUnterminatedColor)fprintf(printer->stream, __VA_ARGS__);}while(0)
 #define _PUTCHR(...) fputc(__VA_ARGS__, printer->stream)
 
 static char const _tcol_lookup[5] = { 'R', 'M', 'W', 'Y', 'G' };
@@ -66,13 +66,13 @@ void perr_printer_init(perr_printer_t* printer, FILE* stream,
     printer->runner = style;
 }
 
-static void perr_print_column(const perr_printer_t* printer, const char *color, const int column) {
+static void perr_print_column(const perr_printer_t* printer, const char *color, const size_t column) {
     _PRINTF("      %s%s{0} %*s", color, printer->box_lookup[PERR_BOX_THICK_VERT],
         (int)column, "");
 }
 
 
-static inline void _perr_print_filename(const perr_printer_t* printer, const perr_t* err, const int column) {
+static inline void _perr_print_filename(const perr_printer_t* printer, const perr_t* err, const size_t column) {
     _PRINTF("{+W}%s{0}:%zu:%zu: ", err->filename, err->primary.line, column);
 }
 
@@ -92,14 +92,16 @@ static void _perr_print_line_number(const perr_printer_t* printer, const perr_t*
 static void _perr_print_offending_line(const perr_printer_t* printer, const char *error_line) {
     char* nl = strstr(error_line, "\n");
     ptrdiff_t nl_index = nl ? nl - error_line : (ptrdiff_t)strlen(error_line);
-    _PRINTF("%.*s\n", nl_index, error_line);
+    _PRINTF("%.*s\n", (int)nl_index, error_line);
 }
 
 // Print a series of '^' showing where the error occurs.
 static inline void _perr_print_highlight_error(const perr_printer_t* printer, const perr_t* err, const char *color,
-            const int column) {
+            const size_t column) {
      perr_print_column(printer, color, column);
-     _PRINTF("%s{-}%s", color, printer->box_lookup[PERR_BOX_THIN_UL]);
+     const enum libprettyerr_boxtype type = err->explain ?
+           PERR_BOX_THIN_UL : PERR_BOX_THIN_BL;
+     _PRINTF("%s{-}%s", color, printer->box_lookup[type]);
      for (size_t i = 1; i < err->error_position.length; i++) {
          _PRINTF(printer->box_lookup[PERR_BOX_THIN_HORIZ]);
      }
@@ -107,6 +109,7 @@ static inline void _perr_print_highlight_error(const perr_printer_t* printer, co
 }
 
 static void lookup_color(char *color, enum libprettyerr_errtype type) {
+
     char _color[3];
     sprintf(_color, "+%c", _tcol_lookup[type]);
     size_t len;
@@ -155,12 +158,12 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     _perr_print_highlight_error(printer, err, color, column);
 
     // Adds a subsidiary error note, if applicable
-    if (err->sub) {
+    if (err->explain) {
         perr_print_column(printer, color, column);
         _PRINTF("{-}%s%s{0}\n", color,
            printer->box_lookup[PERR_BOX_THIN_HIGH]);
         perr_print_column(printer, color, column);
-        _PRINTF(err->sub);
+        _PRINTF(err->explain);
         _PUTCHR('\n');
     }
 

@@ -64,17 +64,17 @@ struct libprettyerr_error {
     struct libprettyerr_pos error_position;
 
     const char* main;
-    const char* sub;
+    const char* explain;
     const char* fix;
     short error_code;
 
     const char* filename;
 };
 
-#define PERR_Error(type_, primary_, error_position_, main_, sub_, fix_, error_code_, filename_) \
+#define PERR_Error(type_, primary_, error_position_, main_, explain_, fix_, error_code_, filename_) \
     (struct libprettyerr_error){ \
         .type = type_, .primary = primary_, .error_position = error_position_, \
-        .main = main_, .sub = sub_, .fix = fix_, .error_code = error_code_, \
+        .main = main_, .explain = explain_, .fix = fix_, .error_code = error_code_, \
         .filename = filename_ \
     }
 
