@@ -4,6 +4,8 @@ TERMCOLOR_CFLAGS  ?= -I../libtermcolor/src
 # force usage of static lib
 TERMCOLOR_LDFLAGS ?= ../libtermcolor/libtermcolor.a
 
+
+CFLAGS   += -g
 CFLAGS   += -Isrc -fPIC
 WARNINGS += -Wall -Wextra
 
@@ -30,14 +32,15 @@ static:  ${PRG}.a
 dynamic: ${PRG}.so
 
 ${PRG}.a: ${OBJ}
+	$(info building $@)
 	${AR} ${AR_OPT}
 
 ${PRG}.so: ${OBJ}
-	echo ${SRC}
+	$(info building $@)
 	${CC} -shared $< -o $@ ${LDFLAGS}
 
 demo: ${PRG}.a
-	${CC} main.c ${CFLAGS} $< -o demo ${LDFLAGS}
+	${CC} main.c ${CFLAGS} $< -o $@ ${LDFLAGS}
 
 .c.o:
 	${CC} ${CFLAGS} $< -c -o ${<:.c=.o}
