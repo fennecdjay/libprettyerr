@@ -97,9 +97,9 @@ static void _perr_print_offending_line(const perr_printer_t* printer, const char
 
 // Print a series of '^' showing where the error occurs.
 static inline void _perr_print_highlight_error(const perr_printer_t* printer, const perr_t* err, const char *color,
-            const size_t column) {
+            const size_t column, const bool small) {
      perr_print_column(printer, color, column);
-     const enum libprettyerr_boxtype type = err->explain ?
+     const enum libprettyerr_boxtype type = !small ?
            PERR_BOX_THIN_UL : PERR_BOX_THIN_BL;
      _PRINTF("%s{-}%s", color, printer->box_lookup[type]);
      for (size_t i = 1; i < err->error_position.length; i++) {
@@ -155,7 +155,8 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
 
     _perr_print_line_number(printer, err, color);
     _perr_print_offending_line(printer, error_line);
-    _perr_print_highlight_error(printer, err, color, column);
+    _perr_print_highlight_error(printer, err,
+          color, column, !err->explain);
 
     // Adds a subsidiary error note, if applicable
     if (err->explain) {
@@ -203,7 +204,8 @@ static inline void perr_print_secondary_style(const perr_printer_t* printer,
 
     _perr_print_line_number(printer, err, color);
     _perr_print_offending_line(printer, error_line);
-    _perr_print_highlight_error(printer, err, color, column);
+    _perr_print_highlight_error(printer, err,
+        color, column, false);
 
     perr_print_column(printer, color, column);
     _PRINTF("{-}%s%s{0}\n", color,
