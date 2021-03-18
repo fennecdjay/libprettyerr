@@ -51,8 +51,10 @@ enum libprettyerr_boxtype {
     PERR_BOX_THICK_VERT,
     PERR_BOX_THIN_HIGH,
     PERR_BOX_THIN_UL,
+    PERR_BOX_THIN_UL_ROUNDED,
     PERR_BOX_THIN_HORIZ,
     PERR_BOX_THIN_BL,
+    PERR_BOX_THIN_BL_ROUNDED,
     PERR_BOX_THIN_VERT,
     PERR_BOX_MAX,
 };
@@ -78,10 +80,10 @@ struct libprettyerr_error {
         .filename = filename_ \
     }
 
-#define PERR_Secondary(type_, primary_, error_position_, main_, filename_) \
+#define PERR_Secondary(type_, primary_, error_position_, main_, fix_, filename_) \
     (struct libprettyerr_error){ \
         .type = type_, .primary = primary_, .error_position = error_position_, \
-        .main = main_, .filename = filename_ \
+        .main = main_, .fix=fix_, .filename = filename_ \
     }
 
 struct libprettyerr_printer;
@@ -93,6 +95,7 @@ struct libprettyerr_printer {
     libprettyerr_runner_t runner;
     bool color;
     bool utf8;
+    bool rounded;
 };
 
 // Initializes a printer

@@ -32,7 +32,7 @@ static char const _tcol_lookup[5] = { 'R', 'M', 'W', 'Y', 'G' };
 
 static char const* _ascii_box_lookup[8] = { "|", "|", "+", "-", "+", "|"};
 //static char const* _utf8_box_lookup[8] = { "┃", "╵", "┌", "─", "└", "│"};
-static char const* _utf8_box_lookup[8] = { "┃", "╵", "╭", "─", "╰", "│"};
+static char const* _utf8_box_lookup[8] = { "┃", "╵", "┌", "╭", "─", "└", "╰", "│"};
 
 static const char* _errtype_lookup[5] = {
     "error",
@@ -90,18 +90,23 @@ static void _perr_print_line_number(const perr_printer_t* printer, const perr_t*
 }
 
 // Print the line.
-static void _perr_print_offending_line(const perr_printer_t* printer, const char *error_line) {
-    char* nl = strstr(error_line, "\n");
-    ptrdiff_t nl_index = nl ? nl - error_line : (ptrdiff_t)strlen(error_line);
-    _PRINTF("%.*s\n", (int)nl_index, error_line);
+static void _perr_print_offending_line(const perr_printer_t* printer, const perr_t* err,
+            const char *error_line, const char *color, const size_t column) {
+    _PRINTF("%.*s", (int)column, error_line);
+    const char *bug = error_line + column;
+    _PRINTF("%s{-}%.*s{0}", color, (int)err->error_position.length, bug);
+    const char *end = bug + err->error_position.length;
+    char* nl = strstr(end, "\n");
+    ptrdiff_t nl_index = nl ? nl - end : (ptrdiff_t)strlen(end) -1;
+    _PRINTF("%.*s\n", (int)nl_index, end);
 }
 
 // Print a series of '^' showing where the error occurs.
 static inline void _perr_print_highlight_error(const perr_printer_t* printer, const perr_t* err, const char *color,
             const size_t column, const bool small) {
      perr_print_column(printer, color, column);
-     const enum libprettyerr_boxtype type = !small ?
-           PERR_BOX_THIN_UL : PERR_BOX_THIN_BL;
+     const enum libprettyerr_boxtype type = (!small ?
+           PERR_BOX_THIN_UL : PERR_BOX_THIN_BL) + printer->rounded;
      if(err->error_position.length > 1) {
        _PRINTF("%s{-}%s", color, printer->box_lookup[type]);
        for (size_t i = 1; i < err->error_position.length; i++) {
@@ -110,6 +115,13 @@ static inline void _perr_print_highlight_error(const perr_printer_t* printer, co
      } else
        _PRINTF("%s{-}%s", color, printer->box_lookup[PERR_BOX_THIN_VERT]);
      _PRINTF("{0}\n");
+}
+
+// Print the fix, dimmed
+static inline void _perr_print_fix(const perr_printer_t* printer, const char *fix) {
+    _PRINTF("{-}");
+    _PRINTF(fix);
+    _PRINTF("{0}\n");
 }
 
 static void lookup_color(char *color, enum libprettyerr_errtype type) {
@@ -158,7 +170,7 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     _PUTCHR('\n');
 
     _perr_print_line_number(printer, err, color);
-    _perr_print_offending_line(printer, error_line);
+    _perr_print_offending_line(printer, err, error_line, color, column);
     _perr_print_highlight_error(printer, err,
           color, column, !err->explain);
 
@@ -174,9 +186,7 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
 
     // Displays a fix, if applicable.
     if (err->fix) {
-        _PRINTF("{-}");
-        _PRINTF(err->fix);
-        _PRINTF("{0}\n");
+      _perr_print_fix(printer, err->fix);
     }
 }
 
@@ -207,7 +217,7 @@ static inline void perr_print_secondary_style(const perr_printer_t* printer,
     _PUTCHR('\n');
 
     _perr_print_line_number(printer, err, color);
-    _perr_print_offending_line(printer, error_line);
+    _perr_print_offending_line(printer, err, error_line, color, column);
     _perr_print_highlight_error(printer, err,
         color, column, false);
 
@@ -215,9 +225,14 @@ static inline void perr_print_secondary_style(const perr_printer_t* printer,
     _PRINTF("{-}%s%s{0}\n", color,
         printer->box_lookup[PERR_BOX_THIN_VERT]);
     perr_print_column(printer, color, column);
-    _PRINTF("{-}%s%s%.*s{0} ", color, printer->box_lookup[4], 3, printer->box_lookup[3]);
+    _PRINTF("{-}%s%s%.*s{0} ", color, printer->box_lookup[PERR_BOX_THIN_BL + printer->rounded],
+        3, printer->box_lookup[PERR_BOX_THIN_HORIZ]);
     _PRINTF(err->main);
     _PUTCHR('\n');
+    // Displays a fix, if applicable.
+    if (err->fix) {
+      _perr_print_fix(printer, err->fix);
+    }
 }
 
 void perr_print_error(const perr_printer_t* printer, const perr_t* err) {
