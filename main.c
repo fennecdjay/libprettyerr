@@ -35,7 +35,7 @@ int main(int argc NUSED, const char* argv[] NUSED) {
         PERR_Error(
             PERR_ERROR /* error */,
             PERR_Str(3, src + 25) /* location of error */,
-            PERR_Pos(40, 2) /* occurs at src[37] through src[45] */,
+            PERR_Pos(40, 2) /* occurs at src[40] through src[41] */,
             "Invalid assignement" /* main error message */,
             "`{+/}owo{0}` is immutable" /* example explanatory error message */,
             "Take a reference to `{+/}owo{0}{-}` and mutate that 😄" /* fix message */,
@@ -43,12 +43,13 @@ int main(int argc NUSED, const char* argv[] NUSED) {
             FILENAME /* filename */
         );
 
-
+    
+    // Create a faux "secondary-style" error
     const perr_t sec =
         PERR_Secondary(
             PERR_WARNING /* error */,
             PERR_Str(2, src + 15) /* location of error */,
-            PERR_Pos(21, 5) /* occurs at src[21] through src[33] */,
+            PERR_Pos(21, 5) /* occurs at src[21] through src[25] */,
             "`{+/}owo{0}` declared `{+/}const{0}` here" /* main error message */,
             "See {/+}https:/gwion.github.io/errors/"ERROR_CODE"{0}{-} for more information on this error, "
               " or use `{+/}gwion --explain="ERROR_CODE"{0}`",
