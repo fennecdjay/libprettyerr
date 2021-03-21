@@ -85,7 +85,7 @@ static void _perr_print_error(const perr_printer_t* printer, const perr_t* err, 
 }
 
 // Print the line number and a | to denote the start of the line.
-static void _perr_print_line_number(const perr_printer_t* printer, const perr_t* err, const char *color) {
+void perr_print_line_number(const perr_printer_t* printer, const perr_t* err, const char *color) {
     _PRINTF("{-}%5zu{0} %s%s{0} ", err->primary.line, color, printer->box_lookup[PERR_BOX_THICK_VERT]);
 }
 
@@ -125,11 +125,10 @@ static inline void _perr_print_fix(const perr_printer_t* printer, const char *fi
 }
 
 static void lookup_color(char *color, enum libprettyerr_errtype type) {
-
     char _color[3];
     sprintf(_color, "+%c", _tcol_lookup[type]);
     size_t len;
-    int status = tcol_color_parse(color, 16, _color, sizeof(_color) -1, &len);
+    const int status = tcol_color_parse(color, 16, _color, sizeof(_color) -1, &len);
     if (status != TermColorErrorNone) {
        color[0] = 0;
       // error
@@ -169,7 +168,7 @@ static inline void perr_print_basic_style(const perr_printer_t* printer,
     _PRINTF(err->main);
     _PUTCHR('\n');
 
-    _perr_print_line_number(printer, err, color);
+    perr_print_line_number(printer, err, color);
     _perr_print_offending_line(printer, err, error_line, color, column);
     _perr_print_highlight_error(printer, err,
           color, column, !err->explain);
@@ -216,14 +215,11 @@ static inline void perr_print_secondary_style(const perr_printer_t* printer,
     _perr_print_filename(printer, err, column);
     _PUTCHR('\n');
 
-    _perr_print_line_number(printer, err, color);
+    perr_print_line_number(printer, err, color);
     _perr_print_offending_line(printer, err, error_line, color, column);
     _perr_print_highlight_error(printer, err,
         color, column, false);
 
-    perr_print_column(printer, color, column);
-    _PRINTF("{-}%s%s{0}\n", color,
-        printer->box_lookup[PERR_BOX_THIN_VERT]);
     perr_print_column(printer, color, column);
     _PRINTF("{-}%s%s%.*s{0} ", color, printer->box_lookup[PERR_BOX_THIN_BL + printer->rounded],
         3, printer->box_lookup[PERR_BOX_THIN_HORIZ]);

@@ -104,7 +104,11 @@ void perr_printer_init(struct libprettyerr_printer* printer, FILE* stream,
 
 // Uses the printer to display the provided error in
 void perr_print_error(const struct libprettyerr_printer* printer,
-                      const  struct libprettyerr_error* err);
+                      const struct libprettyerr_error* err);
 
+// prints source filename and position
+void perr_print_line_number(const struct libprettyerr_printer* printer,
+                             const struct libprettyerr_error* err,
+                             const char *color);
 #endif /* _LIBPRETTYERR_ERROR_H */
 
