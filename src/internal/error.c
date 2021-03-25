@@ -74,7 +74,7 @@ static void perr_print_column(const perr_printer_t* printer, const char *color, 
 
 
 static inline void _perr_print_filename(const perr_printer_t* printer, const perr_t* err, const size_t column) {
-    _PRINTF("{+W}%s{0}:%zu:%zu: ", err->filename, err->primary.line, column);
+    _PRINTF("{0}{+}%s{0}:%zu:%zu: ", err->filename, err->primary.line, column);
 }
 
 static void _perr_print_error(const perr_printer_t* printer, const perr_t* err, const char *color) {
