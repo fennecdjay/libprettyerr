@@ -4,8 +4,6 @@ TERMCOLOR_CFLAGS  ?= -I../libtermcolor/src
 # force usage of static lib
 TERMCOLOR_LDFLAGS ?= ../libtermcolor/libtermcolor.a
 
-
-CFLAGS   += -g
 CFLAGS   += -Isrc -fPIC
 WARNINGS += -Wall -Wextra
 PREFIX   ?= /usr/local
