@@ -25,7 +25,7 @@
 #include <unistd.h>
 #endif
 
-#define _PRINTF(...) do{if(tcol_fprintf(printer->stream, __VA_ARGS__) ==TermColorErrorUnterminatedColor)fprintf(printer->stream, __VA_ARGS__);}while(0)
+#define _PRINTF(...) tcol_fprintf(printer->stream, __VA_ARGS__)
 #define _PUTCHR(...) fputc(__VA_ARGS__, printer->stream)
 
 static char const _tcol_lookup[5] = { 'R', 'M', 'W', 'Y', 'G' };
