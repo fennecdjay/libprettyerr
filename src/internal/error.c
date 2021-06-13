@@ -125,15 +125,15 @@ static inline void _perr_print_fix(const perr_printer_t* printer, const char *fi
 }
 
 static void lookup_color(char *color, enum libprettyerr_errtype type) {
-    char _color[3];
+    char _color[16];
     sprintf(_color, "+%c", _tcol_lookup[type]);
     size_t len;
-    const int status = tcol_color_parse(color, 16, _color, sizeof(_color) -1, &len);
+    const int status = tcol_color_parse(color, 16, _color, 2, &len);
     if (status != TermColorErrorNone) {
        color[0] = 0;
       // error
     } else
-    color[len] = 0;
+      color[len] = 0;
 }
 
 static inline void perr_print_basic_style(const perr_printer_t* printer,
