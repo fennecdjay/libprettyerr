@@ -118,8 +118,11 @@ static inline void _perr_print_highlight_error(const perr_printer_t *printer,
       (!small ? PERR_BOX_THIN_UL : PERR_BOX_THIN_BL) + printer->rounded;
   if (err->error_position.length > 1) {
     _PRINTF("%s{-}%s", color, printer->box_lookup[type]);
-    for (size_t i = 1; i < err->error_position.length; i++) {
-      _PRINTF(printer->box_lookup[PERR_BOX_THIN_HORIZ]);
+    {
+      size_t i;
+      for (i = 1; i < err->error_position.length; i++) {
+        _PRINTF(printer->box_lookup[PERR_BOX_THIN_HORIZ]);
+      }
     }
   } else
     _PRINTF("%s{-}%s", color, printer->box_lookup[PERR_BOX_THIN_VERT]);

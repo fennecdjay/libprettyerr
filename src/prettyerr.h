@@ -22,6 +22,7 @@
 typedef struct libprettyerr_error   perr_t;
 typedef struct libprettyerr_printer perr_printer_t;
 typedef libprettyerr_runner_t       perr_runner_t;
-extern perr_runner_t perr_runner_basic_style;
-extern perr_runner_t perr_runner_secondary_style;
+extern PRETTYERR_EXPORT perr_runner_t perr_runner_basic_style;
+extern PRETTYERR_EXPORT perr_runner_t perr_runner_secondary_style;
+
 #endif /* _LIBPRETTYERR_PRETTYERR_H */
