@@ -76,6 +76,11 @@ else ()
     set(LIBRARY_TYPE_FLAG "STATIC")
 endif ()
 
+option(BUILD_EXAMPLE "Build example" ON)
+if (BUILD_EXAMPLE)
+    add_subdirectory("src/example")
+endif (BUILD_EXAMPLE)
+
 # generate the config file that is includes the exports
 configure_package_config_file(
         "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in"
