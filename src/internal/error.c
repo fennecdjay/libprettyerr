@@ -16,7 +16,9 @@
 
 #include <string.h>
 #include <ctype.h>
+
 #include <termcolor.h>
+
 #include "prettyerr.h"
 
 // Used to declare isatty if on Unix
