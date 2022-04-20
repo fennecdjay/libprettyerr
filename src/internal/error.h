@@ -100,6 +100,8 @@ struct libprettyerr_printer {
     bool rounded;
 };
 
+#define PRETTYERR_EXPORT
+
 // Initializes a printer
 PRETTYERR_EXPORT
 void perr_printer_init(struct libprettyerr_printer* printer, FILE* stream,

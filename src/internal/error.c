@@ -19,7 +19,7 @@
 
 #include <termcolor.h>
 
-#include "prettyerr.h"
+#include "prettyerr_export.h"
 
 // Used to declare isatty if on Unix
 #if defined(__unix__) || defined(__unix) ||                                    \
