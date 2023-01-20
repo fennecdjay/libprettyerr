@@ -30,15 +30,15 @@
 #define _PRINTF(...) tcol_fprintf(printer->stream, __VA_ARGS__)
 #define _PUTCHR(...) fputc(__VA_ARGS__, printer->stream)
 
-static char const _tcol_lookup[5] = {'R', 'M', 'W', 'Y', 'G'};
+static char const _tcol_lookup[5] = {'G', 'R', 'M', 'W', 'Y'};
 
 static char const *_ascii_box_lookup[8] = {"|", "|", "+", "-", "+", "|"};
 // static char const* _utf8_box_lookup[8] = { "┃", "╵", "┌", "─", "└", "│"};
 static char const *_utf8_box_lookup[8] = {"┃", "╵", "┌", "╭",
                                           "─", "└", "╰", "│"};
 
-static const char *_errtype_lookup[5] = {"error", "warning", "info", "note",
-                                         "success"};
+static const char *_errtype_lookup[5] = {"succes", "error", "warning", "info",
+                                         "note"};
 
 void perr_printer_init(perr_printer_t *printer, FILE *stream,
                        const char *source, bool utf8, perr_runner_t style) {

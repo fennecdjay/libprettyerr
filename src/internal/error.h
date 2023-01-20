@@ -42,11 +42,11 @@ struct libprettyerr_pos {
     (struct libprettyerr_pos){ .index = index_, .length = length_ }
 
 enum libprettyerr_errtype {
+    PERR_SUCCESS,  // bold green
     PERR_ERROR,   // bold red
     PERR_WARNING, // red
     PERR_INFO,    // bold white
-    PERR_NOTE,    // bold yellow
-    PERR_SUCCESS  // bold green
+    PERR_NOTE    // bold yellow
 };
 
 enum libprettyerr_boxtype {
