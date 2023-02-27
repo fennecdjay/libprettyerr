@@ -1,9 +1,3 @@
-# should be in config.mk
-TERMCOLOR_CFLAGS  ?= -I../libtermcolor/src
-
-# force usage of static lib
-TERMCOLOR_LDFLAGS ?= ../libtermcolor/libtermcolor.a
-
 CFLAGS   += -Isrc -fPIC
 WARNINGS += -Wall -Wextra
 PREFIX   ?= /usr/local
@@ -21,8 +15,7 @@ AR = ar
 AR_OPT = rcs $@ $^
 endif
 
-CFLAGS += ${WARNINGS} ${TERMCOLOR_CFLAGS}
-LDFLAGS += ${TERMCOLOR_LDFLAGS}
+CFLAGS += ${WARNINGS}
 
 all: static dynamic demo
 
