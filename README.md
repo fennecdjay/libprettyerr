@@ -1,3 +1,5 @@
+(archiving, the lib was moved to [gwion-util](https://github.com/Gwion/gwion-util)
+
 # libprettyerr
 
 A C library for displaying informative, clean and readable errors  
